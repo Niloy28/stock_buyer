@@ -11,43 +11,31 @@ class Tagger(object):
         self.target_pos = target_pos
 
     def preprocess_text(self, raw_text):
-        processed_text = []
+        # remove all non-alphabetic words and special characters
+        processed_text = re.sub(r'[^a-zA-Z]', ' ', raw_text)
+        processed_text = re.sub(r'\s+', ' ', processed_text)
 
-        for entry in raw_text:
-            # remove everything except words
-            entry = re.sub(r'[^a-zA-Z]', ' ', entry)
-            # remove special characters
-            entry = re.sub(r'\s+', ' ', entry)
+        tokens = self.nlp(processed_text)
+        tokens = [token.text.lower()
+                  for token in tokens if not token.is_stop and len(token.text) > 1]
 
-            tokens = self.nlp(entry)
-
-            # remove stopwords and single-character words from text
-            tokens = [token.text.lower()
-                      for token in tokens if not token.is_stop and len(token.text) > 1]
-            tokens = " ".join(tokens)
-
-            processed_text.append(tokens)
+        processed_text = " ".join(tokens)
 
         return processed_text
 
     def pos_tag_text(self, processed_text):
+        tagged_text = self.nlp(processed_text)
         tagged_tokens = []
 
-        for text in processed_text:
-            tagged_text = self.nlp(text)
-
-            l = []
-            for token in tagged_text:
-                if token.tag_ in self.target_pos:
-                    l.append(token.text)
-
-            tagged_tokens.append(l)
+        for entry in tagged_text:
+            if entry.tag_ in self.target_pos:
+                tagged_tokens.append(entry.text)
 
         return tagged_tokens
 
     def create_bag_of_words(self, text):
-        processed_text = self.preprocess_text(text)
-        tagged_tokens = self.pos_tag_text(processed_text)
+        processed_text = text.apply(self.preprocess_text)
+        tagged_tokens = processed_text.apply(self.pos_tag_text)
 
         unique_tokens = list(set(chain.from_iterable(tagged_tokens)))
         bag_of_words = [[0 for i in range(len(unique_tokens))]

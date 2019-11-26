@@ -41,3 +41,4 @@ uitests/out/**
 !build/
 
 /debug
+/ref
