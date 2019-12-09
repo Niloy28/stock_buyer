@@ -10,10 +10,13 @@ square_data = pd.read_csv(r'./data/SQPH.csv', infer_datetime_format=True,
 
 idx = gp_data.index.intersection(square_data.index)
 
-opening_prices = pd.concat([gp_data.loc[idx, 'Open'].rename('GP'), square_data.loc[idx, 'Open'].rename('SQPH')], axis=1)
-closing_prices = pd.concat([gp_data.loc[idx, 'Price'].rename('GP'), square_data.loc[idx, 'Price'].rename('SQPH')], axis=1)
+opening_prices = pd.concat([gp_data.loc[idx, 'Open'].rename('GP').sort_index(), square_data.loc[idx, 'Open'].rename('SQPH').sort_index()], axis=1)
+closing_prices = pd.concat([gp_data.loc[idx, 'Price'].rename('GP').sort_index(), square_data.loc[idx, 'Price'].rename('SQPH').sort_index()], axis=1)
+
+print(opening_prices.head())
+print(closing_prices.head())
 
 agent = QLearningAgent(2, 3)
 agent.set_initial_state(10000)
 
-print(agent.train_agent(trials=1000, opening_prices=opening_prices, closing_prices=closing_prices))
+print(agent.train_agent(learning_rate=0.00000001, trials=100, opening_prices=opening_prices, closing_prices=closing_prices))

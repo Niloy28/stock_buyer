@@ -9,11 +9,14 @@ grae = pd.read_csv('./data/GRAE.csv', index_col=0, parse_dates=True)
 sqph = pd.read_csv('./data/SQPH.csv', index_col=0, parse_dates=True)
 
 idx = grae.index.intersection(sqph.index)
-grae = grae.loc[idx].head(n=252)
-sqph = sqph.loc[idx].head(n=252)
+grae = grae.loc[idx].sort_index()
+sqph = sqph.loc[idx].sort_index()
 
-opening_prices = pd.concat([grae.loc[:, 'Open'].rename('GP'), sqph.loc[:, 'Open'].rename('SQPH')], axis=1)
-closing_prices = pd.concat([grae.loc[:, 'Price'].rename('GP'), sqph.loc[:, 'Price'].rename('SQPH')], axis=1)
+opening_prices = pd.concat([grae.loc[:, 'Open'].rename('GP').sort_index(), sqph.loc[:, 'Open'].rename('SQPH').sort_index()], axis=1)
+closing_prices = pd.concat([grae.loc[:, 'Price'].rename('GP').sort_index(), sqph.loc[:, 'Price'].rename('SQPH').sort_index()], axis=1)
+
+print(grae.head())
+print(sqph.head())
 
 for stock_df in (grae, sqph):
     stock_df['Norm Return'] = stock_df['Price'] / stock_df.iloc[0]['Price']
@@ -23,7 +26,8 @@ for stock_df in (grae, sqph):
 
 agent = QLearningAgent(2, 3)
 agent.set_initial_state(10000)
-agent.load_weights([3492549400, 535662744, 232662777])
+# agent.load_weights([3492549400, 535662744, 232662777]) -> this gives ratio of 1.06
+agent.load_weights([0.10864437, -0.09855167, 17.92765045])
 
 grae_percent = []
 sqph_percent = []

@@ -149,7 +149,7 @@ class QLearningAgent(object):
         starting_cash = self.cash_in_hand
         while i < trials:
             curr_frame_row = 0
-            for timestep in range(100):
+            for timestep in range(200):
                 self.update_stock_prices(opening_prices, closing_prices, curr_frame_row)
 
                 if self.explore_state_space():
@@ -173,6 +173,7 @@ class QLearningAgent(object):
             self.reset_agent(starting_cash)
 
             i += 1
+            print(self.weights)
         return self.weights
 
     def reset_agent(self, starting_cash):
