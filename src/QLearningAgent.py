@@ -16,9 +16,9 @@ class Actions(Enum):
 class QLearningAgent(object):
     def __init__(self, number_of_stocks, number_of_features, epsilon=0.2, gamma=1, using_trend=False, using_sentiment=False):
         self.cash_in_hand = 0
-        self.stocks_in_hand = np.array([0 for i in range(number_of_stocks)])
-        self.opening_prices = np.array([0 for i in range(number_of_stocks)])
-        self.closing_prices = np.array([0 for i in range(number_of_stocks)])
+        self.stocks_in_hand = np.zeros(number_of_stocks)
+        self.opening_prices = np.zeros(number_of_stocks)
+        self.closing_prices = np.zeros(number_of_stocks)
         self.initial_investment = 0
         self.epsilon = epsilon
         self.gamma = gamma
@@ -84,7 +84,8 @@ class QLearningAgent(object):
 
     def create_feature_vector(self, cash, prices, stocks):
         cash /= self.initial_investment
-        prices = (prices - self.GLOBAL_OPEN_PRICE_MEAN) / self.GLOBAL_OPEN_PRICE_RANGE
+        prices = (prices - self.GLOBAL_OPEN_PRICE_MEAN) / \
+            self.GLOBAL_OPEN_PRICE_RANGE
 
         return np.array([cash, np.mean(prices), np.mean(stocks)])
 
@@ -97,7 +98,7 @@ class QLearningAgent(object):
             cash -= self.opening_prices[idx]
 
         return cash, np.array(stocks)
-        
+
     def calculate_reward(self):
         return float(np.dot(self.closing_prices, self.stocks_in_hand)) + self.cash_in_hand - self.initial_investment
 
@@ -123,20 +124,10 @@ class QLearningAgent(object):
         return cash, stocks
 
     def calculate_Q_sa(self, cash, stocks):
-        features = self.create_feature_vector(cash, self.opening_prices, stocks)
+        features = self.create_feature_vector(
+            cash, self.opening_prices, stocks)
 
         return float(np.dot(self.weights, features))
-
-    def update_weights(self, action, learning_rate):
-        cash, stocks = self.perform_action(action)
-
-        f_sa = self.create_feature_vector(cash, self.opening_prices, stocks)
-        Q_sa = self.calculate_Q_sa(cash, stocks)
-        self.update_cash_and_stocks(cash, stocks)
-
-        sample = self.generate_sample()
-        difference = sample - Q_sa
-        self.weights = self.weights + learning_rate * difference * f_sa
 
     def train_agent(self, learning_rate=0.01, trials=10, opening_prices=None, closing_prices=None):
         if opening_prices is None:
@@ -150,17 +141,19 @@ class QLearningAgent(object):
         while i < trials:
             curr_frame_row = 0
             for timestep in range(200):
-                self.update_stock_prices(opening_prices, closing_prices, curr_frame_row)
+                self.update_stock_prices(
+                    opening_prices, closing_prices, curr_frame_row)
 
                 if self.explore_state_space():
                     action = self.choose_random_action()
                 else:
                     action = self.choose_optimum_action()
-                    
+
                 # update weights
                 cash, stocks = self.perform_action(action)
 
-                f_sa = self.create_feature_vector(cash, self.opening_prices, stocks)
+                f_sa = self.create_feature_vector(
+                    cash, self.opening_prices, stocks)
                 Q_sa = float(np.dot(self.weights, f_sa))
                 self.update_cash_and_stocks(cash, stocks)
 
@@ -179,9 +172,9 @@ class QLearningAgent(object):
     def reset_agent(self, starting_cash):
         self.cash_in_hand = starting_cash
         self.initial_investment = starting_cash
-        self.stocks_in_hand = np.array([0 for i in range(self.stocks_in_hand.size)])
-        self.opening_prices = np.array([0 for i in range(self.opening_prices.size)])
-        self.closing_prices = np.array([0 for i in range(self.closing_prices.size)])
+        self.stocks_in_hand = np.zeros(self.stocks_in_hand.shape)
+        self.opening_prices = np.zeros(self.opening_prices.shape)
+        self.closing_prices = np.zeros(self.closing_prices.shape)
 
     def load_weights(self, weights):
         self.weights = np.array(weights)

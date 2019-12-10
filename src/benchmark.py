@@ -1,6 +1,6 @@
-import numpy as np 
-import pandas as pd 
-import matplotlib.pyplot as plt 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import sys
 
 from QLearningAgent import QLearningAgent
@@ -12,17 +12,16 @@ idx = grae.index.intersection(sqph.index)
 grae = grae.loc[idx].sort_index()
 sqph = sqph.loc[idx].sort_index()
 
-opening_prices = pd.concat([grae.loc[:, 'Open'].rename('GP').sort_index(), sqph.loc[:, 'Open'].rename('SQPH').sort_index()], axis=1)
-closing_prices = pd.concat([grae.loc[:, 'Price'].rename('GP').sort_index(), sqph.loc[:, 'Price'].rename('SQPH').sort_index()], axis=1)
+opening_prices = pd.concat([grae.loc[:, 'Open'].rename(
+    'GP').sort_index(), sqph.loc[:, 'Open'].rename('SQPH').sort_index()], axis=1)
+closing_prices = pd.concat([grae.loc[:, 'Price'].rename(
+    'GP').sort_index(), sqph.loc[:, 'Price'].rename('SQPH').sort_index()], axis=1)
 
 print(grae.head())
 print(sqph.head())
 
 for stock_df in (grae, sqph):
     stock_df['Norm Return'] = stock_df['Price'] / stock_df.iloc[0]['Price']
-
-# print(grae.head())
-# print(sqph.head())
 
 agent = QLearningAgent(2, 3)
 agent.set_initial_state(10000)
@@ -58,7 +57,8 @@ portf_val = pd.concat(all_pos, axis=1)
 portf_val['Total Pos'] = portf_val.sum(axis=1)
 portf_val['Daily Return'] = portf_val['Total Pos'].pct_change(1)
 
-sharpe_ratio = portf_val['Daily Return'].mean() / portf_val['Daily Return'].std()
+sharpe_ratio = portf_val['Daily Return'].mean() / \
+    portf_val['Daily Return'].std()
 A_sharpe_ratio = sharpe_ratio * (252 ** 0.5)
 
 print(A_sharpe_ratio)
