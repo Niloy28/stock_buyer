@@ -9,8 +9,8 @@ grae = pd.read_csv('./data/GRAE.csv', index_col=0, parse_dates=True)
 sqph = pd.read_csv('./data/SQPH.csv', index_col=0, parse_dates=True)
 
 idx = grae.index.intersection(sqph.index)
-grae = grae.loc[idx].sort_index()
-sqph = sqph.loc[idx].sort_index()
+grae = grae.loc[idx].sort_index().head(n=252)
+sqph = sqph.loc[idx].sort_index().head(n=252)
 
 opening_prices = pd.concat([grae.loc[:, 'Open'].rename('GP').sort_index(), sqph.loc[:, 'Open'].rename('SQPH').sort_index()], axis=1)
 closing_prices = pd.concat([grae.loc[:, 'Price'].rename('GP').sort_index(), sqph.loc[:, 'Price'].rename('SQPH').sort_index()], axis=1)
@@ -24,10 +24,10 @@ for stock_df in (grae, sqph):
 # print(grae.head())
 # print(sqph.head())
 
-agent = QLearningAgent(2, 3)
-agent.set_initial_state(10000)
+agent = QLearningAgent(starting_cash=10000, number_of_stocks=2)
 # agent.load_weights([3492549400, 535662744, 232662777]) -> this gives ratio of 1.06
-agent.load_weights([0.10864437, -0.09855167, 17.92765045])
+# agent.load_weights([0.10864437, -0.09855167, 17.92765045]) -> this gives ratio of 1.06
+# agent.load_weights([0.14677866, -0.12163202, 24.09942938]) -> this gives 2.2 (: how on earth
 
 grae_percent = []
 sqph_percent = []
