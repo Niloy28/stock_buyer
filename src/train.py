@@ -22,20 +22,10 @@ opening_prices = pd.concat([gp_data.loc[idx, 'Open'].rename('GP').sort_index(
 closing_prices = pd.concat([gp_data.loc[idx, 'Price'].rename('GP').sort_index(
 ), square_data.loc[idx, 'Price'].rename('SQPH').sort_index()], axis=1)
 
-# print(sentiment.head())
-# date = opening_prices.index.values[1]
-# try:
-#     print(sentiment.loc[date])
-# except KeyError:
-#     idx_date = sentiment.index
-#     res = idx_date.where(idx_date < date).tolist()
-#     res = [r for r in res if type(r) is not pd._libs.tslibs.nattype.NaTType]
-#     # res = res.where(res != pd._libs.tslibs.nattype.NaTType)
-#     print(res[-1])
 
 agent = QLearningAgent(starting_cash=10000,
-                       number_of_stocks=2, using_sentiment=True, target_pos=target_pos)
+                       number_of_stocks=2, using_sentiment=False, target_pos=target_pos)
 
-agent.train_sentiment_analyzer(sentiment_text, sentiment_score)
+# agent.train_sentiment_analyzer(sentiment_text, sentiment_score)
 agent.train_agent(learning_rate=0.00000001, trials=100, opening_prices=opening_prices,
                   closing_prices=closing_prices, news=sentiment_text)

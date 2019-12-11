@@ -127,14 +127,6 @@ class QLearningAgent(object):
         stocks = stocks + buy_stock
 
         return cash, np.array(stocks)
-        # while cash >= min(self.opening_prices):
-        #     idx = np.random.randint(0, len(stocks))
-        #     if self.opening_prices[idx] > cash:
-        #         continue
-        #     stocks[idx] += 1
-        #     cash -= self.opening_prices[idx]
-
-        # return cash, np.array(stocks)
 
     def calculate_reward(self):
         return float(np.dot(self.closing_prices, self.stocks_in_hand)) + self.cash_in_hand - self.initial_investment
@@ -198,7 +190,7 @@ class QLearningAgent(object):
 
                 self.stock_trend = self.get_stock_trend(
                     opening_prices, curr_frame_row)
-                if news is not None:
+                if news is not None and self.curr_sentiment_analyzer is not None:
                     date = opening_prices.index.values[curr_frame_row]
                     self.curr_sentiment_score = self.get_sentiment_score(
                         news, date)
